@@ -373,8 +373,13 @@ class LocalParticipant extends Participant<LocalTrackPublication> {
 
     logger.fine('Video layers: ${layers.map((e) => e)}');
 
+    // Snapshot into a non-nullable local: publishOptions is a reassigned
+    // parameter, so newer Dart won't keep it promoted across the closure's awaits.
+    final VideoPublishOptions publishOptionsSnapshot = publishOptions;
+
     Future<lk_models.TrackInfo> negotiate() async {
-      track.transceiver = await room.engine.createTransceiverRTCRtpSender(track, publishOptions!, encodings);
+      final publishOptions = publishOptionsSnapshot;
+      track.transceiver = await room.engine.createTransceiverRTCRtpSender(track, publishOptions, encodings);
 
       if (lkBrowser() != BrowserType.firefox) {
         await room.engine.setPreferredCodec(
